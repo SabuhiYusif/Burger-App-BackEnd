@@ -13,6 +13,7 @@ import java.util.List;
 
 @Service
 public class BurgerRecognizeServiceImpl implements BurgerRecognizeService {
+    private static final String BURGER_FINDER_URL = "https://pplkdijj76.execute-api.eu-west-1.amazonaws.com/prod/recognize";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -21,17 +22,16 @@ public class BurgerRecognizeServiceImpl implements BurgerRecognizeService {
     public BurgerResponse getUrlWithBurger(StringBuilder photoUrls, HashMap<String, String> urls, String url) {
         List<String> urlList = Arrays.asList(photoUrls.toString().split(","));
         RecognizeBodyPayload body = new RecognizeBodyPayload();
-        BurgerResponse res = null;
+        BurgerResponse burgerResponse = null;
         if (urlList.size() > 0){
             body.setUrls(urlList);
             try {
-                res = restTemplate.postForObject("https://pplkdijj76.execute-api.eu-west-1.amazonaws.com/prod/recognize", body, BurgerResponse.class);
+                burgerResponse = restTemplate.postForObject(BURGER_FINDER_URL, body, BurgerResponse.class);
 
             }catch (Exception e){
                 e.printStackTrace();
             }
-
         }
-        return res;
+        return burgerResponse;
     }
 }
