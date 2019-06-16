@@ -17,10 +17,8 @@ public class BurgerApplication {
         SpringApplication.run(BurgerApplication.class, args);
     }
 
-
     @Bean
     public RestTemplate restTemplate() {
-        RestTemplate _restTemplate = new RestTemplate();
-        return _restTemplate;
+        return new RestTemplate();
     }
 }

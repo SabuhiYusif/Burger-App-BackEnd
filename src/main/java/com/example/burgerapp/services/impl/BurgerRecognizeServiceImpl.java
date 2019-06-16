@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -19,12 +17,11 @@ public class BurgerRecognizeServiceImpl implements BurgerRecognizeService {
     private RestTemplate restTemplate;
 
     @Override
-    public BurgerResponse getUrlWithBurger(StringBuilder photoUrls, HashMap<String, String> urls, String url) {
-        List<String> urlList = Arrays.asList(photoUrls.toString().split(","));
+    public BurgerResponse getUrlWithBurger(List<String> photoUrls) {
         RecognizeBodyPayload body = new RecognizeBodyPayload();
         BurgerResponse burgerResponse = null;
-        if (urlList.size() > 0){
-            body.setUrls(urlList);
+        if (photoUrls.size() > 0){
+            body.setUrls(photoUrls);
             try {
                 burgerResponse = restTemplate.postForObject(BURGER_FINDER_URL, body, BurgerResponse.class);
 

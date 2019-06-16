@@ -1,6 +1,7 @@
 package com.example.burgerapp.services.impl;
 
 import com.example.burgerapp.domain.models.burger.BurgerResponse;
+import com.example.burgerapp.domain.models.burger.BurgerVenueInfo;
 import com.example.burgerapp.domain.models.venue.Venue;
 import com.example.burgerapp.domain.models.venue.VenueResult;
 import com.example.burgerapp.services.BurgerRecognizeService;
@@ -11,7 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class BurgerServiceImpl implements BurgerService {
@@ -22,10 +24,10 @@ public class BurgerServiceImpl implements BurgerService {
     private RestTemplate restTemplate;
 
     @Autowired
-    BurgerService burgerService;
+    private BurgerService burgerService;
 
     @Autowired
-    BurgerRecognizeService burgerRecognizeService;
+    private BurgerRecognizeService burgerRecognizeService;
 
     @Override
     public VenueResult getVenues() {
@@ -33,53 +35,36 @@ public class BurgerServiceImpl implements BurgerService {
     }
 
     @Override
-    public StringBuilder getPhotoUrls(String url) {
-        StringBuilder photoUrls = new StringBuilder();
+    public List<String> getPhotoUrls(String url) {
+        List<String> photoUrls = new ArrayList<>();
         try {
             Document doc = Jsoup.connect(url).get();
             doc.select("img").forEach(link -> {
                 if (link.toString().contains("600x600")) {
                     String startUrl = link.toString().substring(link.toString().indexOf("\"") + 1);
                     String fullUrl = startUrl.substring(0, startUrl.indexOf("\""));
-
-                    photoUrls.append(fullUrl);
-                    photoUrls.append(",");
+                    photoUrls.add(fullUrl);
                 }
             });
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return photoUrls;
     }
 
-    /**
-     * Fills burgerJointsMap HashMap with name address and burger photo url
-     * If burger photo not found return null
-     * Key is comma seperated name and address of venue respectively
-     * Value is url with burger in it
-     * @param venueResult
-     * @param burgerJointsMap
-     * @return
-     */
     @Override
-    public HashMap<String, String> fillBurgerJointsMapWithVenueInfo(VenueResult venueResult, HashMap<String, String> burgerJointsMap) {
+    public List<BurgerVenueInfo> getBurgerVenuesInfo(VenueResult venueResult, List<BurgerVenueInfo> burgerVenues) {
         for (Venue venue : venueResult.getResponse().getVenues()) {
             String url = BASE_PLACE_API_URL + venue.getId() + "/" + "photos";
-            StringBuilder photoUrls = burgerService.getPhotoUrls(url);
-            BurgerResponse res = burgerRecognizeService.getUrlWithBurger(photoUrls, burgerJointsMap, url);
+            List<String> photoUrls = burgerService.getPhotoUrls(url);
+            BurgerResponse res = burgerRecognizeService.getUrlWithBurger(photoUrls);
             if (res != null) {
-                burgerJointsMap.put(venue.getName() + "," + venue.getLocation().getAddress(), res.getUrlWithBurger());
-            }else{
-                if (venue.getLocation().getAddress() == null){
-                    burgerJointsMap.put(venue.getName() + "," + "Not Found", null);
-                } else {
-                    burgerJointsMap.put(venue.getName() + "," + venue.getLocation().getAddress(), null);
-                }
-
+                BurgerVenueInfo burgerVenueInfo = BurgerVenueInfo.of(venue.getName(), venue.getLocation().getAddress(), res.getUrlWithBurger());
+                burgerVenues.add(burgerVenueInfo);
             }
         }
 
-        return burgerJointsMap;
+        return burgerVenues;
     }
 }

@@ -2,9 +2,9 @@ package com.example.burgerapp.services;
 
 import com.example.burgerapp.domain.models.burger.BurgerResponse;
 
-import java.util.HashMap;
+import java.util.List;
 
 public interface BurgerRecognizeService {
-    BurgerResponse getUrlWithBurger(StringBuilder photoUrls, HashMap<String, String> urls, String url);
+    BurgerResponse getUrlWithBurger(List<String> photoUrls);
 
 }
