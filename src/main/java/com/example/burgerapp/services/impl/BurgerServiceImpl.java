@@ -22,7 +22,7 @@ public class BurgerServiceImpl implements BurgerService {
 
     @Autowired
     private RestTemplate restTemplate;
-
+//ygyg
     @Autowired
     private BurgerService burgerService;
 
