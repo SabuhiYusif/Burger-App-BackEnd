@@ -52,6 +52,7 @@ public class BurgerServiceImpl implements BurgerService {
 
         return photoUrls;
     }
+    
 
     @Override
     public List<BurgerVenueInfo> getBurgerVenuesInfo(VenueResult venueResult, List<BurgerVenueInfo> burgerVenues) {
